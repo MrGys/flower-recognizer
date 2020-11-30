@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, redirect, flash
+from flask.helpers import url_for
 from app import app
 from werkzeug.utils import secure_filename
 from model import get_prediction
@@ -40,7 +41,7 @@ def submit_file():
 
         # Handle invalid file type extensions
         if not allowed_file(file.filename):
-            flash('Invalid file type')
+            flash('Invalid file type. Allowed image types are -> png, jpg, jpeg')
             return redirect(request.url)
 
         # File uploaded
@@ -60,4 +61,9 @@ def submit_file():
             flash(accuracy_percent)
             flash(filename)
 
-            return redirect('/')
+            return render_template('index.html', filename=filename)
+
+
+@app.route('/display/<filename>')
+def display_image(filename):
+    return redirect(url_for('static', filename='uploads/' + filename), code=301)
