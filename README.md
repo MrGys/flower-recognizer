@@ -10,3 +10,13 @@ Install Dependencies
 Build new virtual environment
 
 - pipenv shell
+
+# Run the application
+
+```bash
+export FLASK_APP=index.py
+```
+
+```bash
+flask run
+```
