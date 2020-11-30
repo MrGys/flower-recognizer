@@ -9,6 +9,14 @@ import os
 if __name__ == '__main__':
     app.run(host='127.0.0.1', threaded=True)
 
+UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
+ALLOWED_EXTENSIONS = {'png', 'jpg', 'jpeg'}
+
+
+def allowed_file(filename):
+    return '.' in filename and \
+        filename.rsplit('.', 1)[1].lower() in ALLOWED_EXTENSIONS
+
 
 @app.route('/')
 def index():
@@ -30,12 +38,15 @@ def submit_file():
             flash('No file selected for uploading')
             return redirect(request.url)
 
+        # Handle invalid file type extensions
+        if not allowed_file(file.filename):
+            flash('Invalid file type')
+            return redirect(request.url)
+
         # File uploaded
-        if file:
+        if file and allowed_file(file.filename):
             # Get file name
             filename = secure_filename(file.filename)
-
-            UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
 
             # Save picture
             file.save(os.path.join(UPLOAD_FOLDER, filename))
