@@ -1,9 +1,11 @@
-from flask import Flask, render_template, request, redirect, flash
+from flask import render_template, request, redirect, flash
 from flask.helpers import url_for
 from app import app
 from werkzeug.utils import secure_filename
-from model import get_prediction
-import os
+from model import get_prediction_content
+from PIL import Image
+import flask
+import io
 
 # Check if the index.py file is run directly
 # If so, run the application on localhost address
@@ -49,12 +51,12 @@ def submit_file():
             # Get file name
             filename = secure_filename(file.filename)
 
-            # Save picture
-            file.save(os.path.join(UPLOAD_FOLDER, filename))
+            # read the image in PIL format
+            image = flask.request.files["file"].read()
+            image = Image.open(io.BytesIO(image))
 
             # Predict
-            get_prediction(os.path.join(UPLOAD_FOLDER, filename))
-            class_name, accuracy_percent = get_prediction(filename)
+            class_name, accuracy_percent = get_prediction_content(image)
 
             # Send messages to front end template
             flash(class_name)

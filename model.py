@@ -2,8 +2,9 @@ import numpy as np
 import os
 import PIL
 import PIL.Image
-from app import app
 import tensorflow as tf
+from keras.preprocessing.image import img_to_array
+from keras.applications import imagenet_utils
 
 from tensorflow import keras
 
@@ -11,30 +12,33 @@ from tensorflow import keras
 model = keras.models.load_model('./flower_classifier_model')
 
 
-def get_prediction(filename):
+def prepare_image(image, target):
+    # if the image mode is not RGB, convert it
+    if image.mode != "RGB":
+        image = image.convert("RGB")
+
+    # resize the input image and preprocess it
+    image = image.resize(target)
+    image = img_to_array(image)
+    image = np.expand_dims(image, axis=0)
+    image = imagenet_utils.preprocess_input(image)
+
+    # return the processed image
+    return image
+
+
+def get_prediction_content(image):
 
     class_names = ['daisy', 'dandelion', 'roses', 'sunflowers', 'tulips']
 
     img_height = 180
     img_width = 180
 
-    # Set the path to the file
-    UPLOAD_FOLDER = app.config['UPLOAD_FOLDER']
-    filename_path = os.path.join(UPLOAD_FOLDER, filename)
-
-    # Load image
-    img = keras.preprocessing.image.load_img(
-        filename_path, target_size=(img_height, img_width)
-    )
-
-    # Transform image to array
-    img_array = keras.preprocessing.image.img_to_array(img)
-
-    # Create a batch
-    img_array = tf.expand_dims(img_array, 0)
+    # preprocess the image and prepare it for classification
+    image = prepare_image(image, target=(img_height, img_width))
 
     # Predict
-    predictions = model.predict(img_array)
+    predictions = model.predict(image)
     score = tf.nn.softmax(predictions[0])
 
     predicted_class = class_names[np.argmax(score)]
