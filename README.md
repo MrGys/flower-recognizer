@@ -6,15 +6,16 @@
 
 ## Install Dependencies
 
-```bash
-pipenv install
-```
-
 Build new virtual environment
 
 ```bash
 pipenv shell
 ```
+
+```bash
+pipenv install
+```
+
 
 ## Run the application
 
